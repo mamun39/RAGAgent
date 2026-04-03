@@ -29,6 +29,28 @@ The backend is event-driven:
 - Inngest listens for named events.
 - When an event arrives, Inngest runs the matching function.
 
+## Workflow Figure
+
+```mermaid
+flowchart LR
+    U[User in Streamlit UI] -->|Upload PDF| E1[Inngest event: rag/ingest_pdf]
+    U -->|Ask question (+ optional source filter)| E2[Inngest event: rag/query_pdf_ai]
+
+    E1 --> F1[Inngest function: rag_inngest_pdf]
+    F1 --> L1[Load PDF text]
+    L1 --> C1[Chunk text]
+    C1 --> EM1[Create embeddings]
+    EM1 --> Q1[(Qdrant: docs collection)]
+
+    E2 --> F2[Inngest function: rag_query_pdf_ai]
+    F2 --> EM2[Embed question]
+    EM2 --> S1[Search Qdrant top_k<br/>optional source_id filter]
+    S1 --> CTX[Build context block]
+    CTX --> LLM[OpenAI chat model]
+    LLM --> A[Answer + sources]
+    A --> U
+```
+
 The ingest flow is:
 
 1. Receive a PDF event.
