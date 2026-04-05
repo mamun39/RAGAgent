@@ -98,7 +98,12 @@ st.divider()
 st.title("Ask a question about your PDFs")
 
 
-async def send_rag_query_event(question: str, top_k: int, source_id: str | None = None) -> None:
+async def send_rag_query_event(
+    question: str,
+    top_k: int,
+    source_id: str | None = None,
+    user_role: str = "employee",
+) -> None:
     """Send a question event and return the created Inngest event ID.
 
     The returned event ID is important because it lets the UI ask Inngest
@@ -108,6 +113,7 @@ async def send_rag_query_event(question: str, top_k: int, source_id: str | None 
     event_data = {
         "question": question,
         "top_k": top_k,
+        "user_role": user_role,
     }
     if source_id:
         event_data["source_id"] = source_id
@@ -170,6 +176,8 @@ def wait_for_run_output(event_id: str, timeout_s: float = 120.0, poll_interval_s
 with st.form("rag_query_form"):
     question = st.text_input("Your question")
     top_k = st.number_input("How many chunks to retrieve", min_value=1, max_value=20, value=5, step=1)
+    # Demo-only role selector. Real auth should populate this server-side later.
+    user_role = st.selectbox("Demo role", options=["public", "employee", "manager", "admin"], index=1)
     sources = list_available_sources()
     source_options = ["All sources", *sources]
     selected_source = st.selectbox("Limit search to a source", options=source_options, index=0)
@@ -179,7 +187,7 @@ with st.form("rag_query_form"):
         with st.spinner("Sending event and generating answer..."):
             source_filter = None if selected_source == "All sources" else selected_source
             # Send the question as an event so the backend workflow can handle it.
-            event_id = asyncio.run(send_rag_query_event(question.strip(), int(top_k), source_filter))
+            event_id = asyncio.run(send_rag_query_event(question.strip(), int(top_k), source_filter, user_role))
             # Poll the local Inngest API until the workflow returns an output.
             output = wait_for_run_output(event_id)
             answer = output.get("answer", "")
