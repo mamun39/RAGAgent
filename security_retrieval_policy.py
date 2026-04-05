@@ -6,6 +6,17 @@ from custom_types import RetrievalPolicyContext
 
 
 LOW_TRUST_LEVELS = ["unverified", "low_trust"]
+ROLE_CLASSIFICATION_ACCESS = {
+    "public": ["public"],
+    "employee": ["public", "internal"],
+    "manager": ["public", "internal", "confidential"],
+    "admin": ["public", "internal", "confidential", "restricted"],
+}
+
+
+def allowed_classifications_for_role(user_role: str) -> list[str]:
+    """Return the demo classification allowlist for a role."""
+    return ROLE_CLASSIFICATION_ACCESS.get(user_role, ROLE_CLASSIFICATION_ACCESS["public"])
 
 
 def build_retrieval_filter(

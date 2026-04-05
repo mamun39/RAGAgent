@@ -35,6 +35,7 @@ from custom_types import (
     RetrievalPolicyContext,
 )
 from security_ingestion import scan_document_text
+from security_retrieval_policy import allowed_classifications_for_role
 
 # Load values from the local .env file before the app starts.
 # This is where API keys and other local configuration usually live.
@@ -159,10 +160,12 @@ async def rag_query_pdf_ai(ctx: inngest.Context):
         """Find the most relevant stored chunks for the user's question."""
         query_vec = embed_texts([question])[0]
         store = QdrantStorage()
+        user_role = ctx.event.data.get("user_role", "employee")
         policy_context = RetrievalPolicyContext(
             tenant_id="demo",
-            user_role="user",
-            allowed_classifications=["public", "internal"],
+            # Real auth should populate user_role and tenant context here.
+            user_role=user_role,
+            allowed_classifications=allowed_classifications_for_role(user_role),
             allow_low_trust=False,
         )
         found = store.search(query_vec, top_k, source_id=source_id, policy_context=policy_context)
