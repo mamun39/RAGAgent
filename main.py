@@ -1,11 +1,9 @@
 """Compatibility shim for the FastAPI and Inngest app entrypoint."""
 
-from pathlib import Path
-import sys
+from bootstrap_src import ensure_src_path
 
-_SRC_PATH = Path(__file__).resolve().parent / "src"
-if str(_SRC_PATH) not in sys.path:
-    sys.path.insert(0, str(_SRC_PATH))
+
+ensure_src_path(__file__)
 
 from ragagent.app.inngest_app import app, inngest_client, rag_inngest_pdf, rag_query_pdf_ai
 
