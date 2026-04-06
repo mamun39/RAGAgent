@@ -3,7 +3,7 @@
 from dotenv import load_dotenv
 from openai import OpenAI
 
-from ragagent.config import DEFAULT_EMBED_DIM, DEFAULT_EMBED_MODEL
+from ..config import DEFAULT_EMBED_DIM, DEFAULT_EMBED_MODEL
 
 
 load_dotenv()

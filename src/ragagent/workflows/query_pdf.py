@@ -5,8 +5,7 @@ import os
 import inngest
 from inngest.experimental import ai
 
-from ragagent.ingestion.data_loader import embed_texts
-from ragagent.config import (
+from ..config import (
     DEFAULT_ALLOW_LOW_TRUST,
     DEFAULT_DEMO_TENANT_ID,
     DEFAULT_DEMO_USER_ROLE,
@@ -14,16 +13,17 @@ from ragagent.config import (
     DEFAULT_LLM_MODEL,
     DEFAULT_LLM_TEMPERATURE,
 )
-from ragagent.models.policy import RetrievalPolicyContext
-from ragagent.models.results import RAGSearchResult
-from ragagent.security.audit import log_security_event
-from ragagent.security.output_filter import screen_generated_answer
-from ragagent.security.retrieval_policy import (
+from ..ingestion.embeddings import embed_texts
+from ..models.policy import RetrievalPolicyContext
+from ..models.results import RAGSearchResult
+from ..security.audit import log_security_event
+from ..security.output_filter import screen_generated_answer
+from ..security.retrieval_policy import (
     allowed_classifications_for_role,
     build_retrieval_filter,
 )
-from ragagent.security.safe_context import build_safe_context
-from ragagent.storage.qdrant_store import QdrantStorage
+from ..security.safe_context import build_safe_context
+from ..storage.qdrant_store import QdrantStorage
 
 
 async def run_query_pdf(ctx: inngest.Context) -> dict:

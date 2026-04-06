@@ -2,7 +2,7 @@
 
 import re
 
-from ragagent.models.results import OutputFilterResult
+from ..models.results import OutputFilterResult
 
 
 API_KEY_PATTERNS = [

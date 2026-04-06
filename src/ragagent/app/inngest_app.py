@@ -7,8 +7,8 @@ from fastapi import FastAPI
 import inngest
 import inngest.fast_api
 
-from ragagent.workflows.ingest_pdf import run_ingest_pdf
-from ragagent.workflows.query_pdf import run_query_pdf
+from ..workflows.ingest_pdf import run_ingest_pdf
+from ..workflows.query_pdf import run_query_pdf
 
 
 load_dotenv()

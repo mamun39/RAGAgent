@@ -2,7 +2,7 @@
 
 import pydantic
 
-from ragagent.models.payloads import RetrievedChunk
+from .payloads import RetrievedChunk
 
 
 class IngestScanResult(pydantic.BaseModel):

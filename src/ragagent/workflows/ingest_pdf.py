@@ -7,12 +7,13 @@ import uuid
 
 import inngest
 
-from ragagent.ingestion.data_loader import embed_texts, load_and_chunk_pdf
-from ragagent.models.payloads import RAGChunkPayload
-from ragagent.models.results import RAGChunkAndSrc, RAGUpsertResult
-from ragagent.security.audit import log_security_event
-from ragagent.security.ingestion_scanner import scan_document_text
-from ragagent.storage.qdrant_store import QdrantStorage
+from ..ingestion.embeddings import embed_texts
+from ..ingestion.loader import load_and_chunk_pdf
+from ..models.payloads import RAGChunkPayload
+from ..models.results import RAGChunkAndSrc, RAGUpsertResult
+from ..security.audit import log_security_event
+from ..security.ingestion_scanner import scan_document_text
+from ..storage.qdrant_store import QdrantStorage
 
 
 async def run_ingest_pdf(ctx: inngest.Context) -> dict:
