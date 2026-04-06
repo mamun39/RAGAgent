@@ -1,10 +1,8 @@
 """Compatibility shim for the Streamlit app entrypoint."""
 
-from pathlib import Path
-import sys
+from bootstrap_src import ensure_src_path
 
-_SRC_PATH = Path(__file__).resolve().parent / "src"
-if str(_SRC_PATH) not in sys.path:
-    sys.path.insert(0, str(_SRC_PATH))
+
+ensure_src_path(__file__)
 
 from ragagent.app.streamlit_app import *  # noqa: F401,F403
