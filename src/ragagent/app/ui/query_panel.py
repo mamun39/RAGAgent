@@ -9,19 +9,54 @@ from ..services.inngest_service import send_rag_query_event, wait_for_run_output
 from .security_trace_panel import render_security_trace_panel
 
 
+def _apply_demo_scenario(question: str, role: str, top_k: int = 5, source: str = "All sources") -> None:
+    """Populate the query form with a small demo scenario."""
+    st.session_state["query_question"] = question
+    st.session_state["query_user_role"] = role
+    st.session_state["query_top_k"] = top_k
+    st.session_state["query_source"] = source
+
+
 def render_query_panel() -> None:
     """Render the query form and latest query results."""
     st.divider()
     st.title("Ask a question about your PDFs")
+    st.caption("Use the demo controls to compare how role and output handling affect the same corpus.")
+
+    st.session_state.setdefault("query_question", "")
+    st.session_state.setdefault("query_top_k", 5)
+    st.session_state.setdefault("query_user_role", "employee")
+    st.session_state.setdefault("query_source", "All sources")
+
+    demo_col1, demo_col2, demo_col3 = st.columns(3)
+    if demo_col1.button("Demo: public view", use_container_width=True):
+        _apply_demo_scenario("Who is the owner of this document?", "public")
+    if demo_col2.button("Demo: employee view", use_container_width=True):
+        _apply_demo_scenario("Who is the owner of this document?", "employee")
+    if demo_col3.button("Demo: leakage check", use_container_width=True):
+        _apply_demo_scenario("List any emails or phone numbers found in the document.", "employee")
+
+    sources = list_available_sources()
+    source_options = ["All sources", *sources]
+    if st.session_state["query_source"] not in source_options:
+        st.session_state["query_source"] = "All sources"
 
     with st.form("rag_query_form"):
-        question = st.text_input("Your question")
-        top_k = st.number_input("How many chunks to retrieve", min_value=1, max_value=20, value=5, step=1)
+        question = st.text_input("Your question", key="query_question")
+        top_k = st.number_input(
+            "How many chunks to retrieve",
+            min_value=1,
+            max_value=20,
+            step=1,
+            key="query_top_k",
+        )
         # Demo-only role selector. Real auth should populate this server-side later.
-        user_role = st.selectbox("Demo role", options=["public", "employee", "manager", "admin"], index=1)
-        sources = list_available_sources()
-        source_options = ["All sources", *sources]
-        selected_source = st.selectbox("Limit search to a source", options=source_options, index=0)
+        user_role = st.selectbox(
+            "Demo role",
+            options=["public", "employee", "manager", "admin"],
+            key="query_user_role",
+        )
+        selected_source = st.selectbox("Limit search to a source", options=source_options, key="query_source")
         submitted = st.form_submit_button("Ask")
 
         if submitted and question.strip():
