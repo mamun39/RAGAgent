@@ -21,6 +21,11 @@ def save_uploaded_pdf(file) -> Path:
 def render_ingest_panel() -> None:
     """Render the upload flow and latest ingestion result."""
     st.title("Upload a PDF to Ingest")
+    with st.expander("Demo hints", expanded=False):
+        st.write("To demonstrate ingestion security behavior:")
+        st.write("- Upload a normal PDF to see an `allow` decision.")
+        st.write("- Include phrases like `ignore previous instructions`, `reveal system prompt`, or `exfiltrate` to trigger `review` or `quarantine`.")
+        st.write("- Newly ingested documents default to `classification=internal`, so a `public` query may return no context.")
     uploaded = st.file_uploader("Choose a PDF", type=["pdf"], accept_multiple_files=False)
 
     if uploaded is not None:
