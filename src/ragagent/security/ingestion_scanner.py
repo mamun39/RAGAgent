@@ -1,6 +1,6 @@
 """Basic ingestion-time scanning for suspicious document content."""
 
-from ragagent.models.results import IngestScanResult
+from ..models.results import IngestScanResult
 
 
 SUSPICIOUS_PHRASES = [

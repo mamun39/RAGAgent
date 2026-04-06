@@ -8,8 +8,8 @@ from qdrant_client.models import (
     Filter,
 )
 
-from ragagent.models.payloads import RetrievedChunk
-from ragagent.config import DEFAULT_EMBED_DIM, DEFAULT_QDRANT_COLLECTION, DEFAULT_QDRANT_URL
+from ..config import DEFAULT_EMBED_DIM, DEFAULT_QDRANT_COLLECTION, DEFAULT_QDRANT_URL
+from ..models.payloads import RetrievedChunk
 
 
 class QdrantStorage:

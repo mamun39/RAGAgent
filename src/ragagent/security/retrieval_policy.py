@@ -2,7 +2,7 @@
 
 from qdrant_client.models import Filter, FieldCondition, MatchAny, MatchValue
 
-from ragagent.models.policy import RetrievalPolicyContext
+from ..models.policy import RetrievalPolicyContext
 
 
 LOW_TRUST_LEVELS = ["unverified", "low_trust"]

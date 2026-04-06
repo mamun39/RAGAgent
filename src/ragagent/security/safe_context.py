@@ -1,6 +1,6 @@
 """Helpers for building LLM context safely from retrieved chunks."""
 
-from ragagent.models.payloads import RetrievedChunk
+from ..models.payloads import RetrievedChunk
 
 
 SAFE_CONTEXT_PREAMBLE = (

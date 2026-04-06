@@ -2,7 +2,7 @@
 
 import pydantic
 
-from ragagent.config import DEFAULT_ALLOW_LOW_TRUST, DEFAULT_DEMO_TENANT_ID
+from ..config import DEFAULT_ALLOW_LOW_TRUST, DEFAULT_DEMO_TENANT_ID
 
 class RetrievalPolicyContext(pydantic.BaseModel):
     """App-layer policy inputs for retrieval filtering."""

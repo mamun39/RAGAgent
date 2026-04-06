@@ -3,7 +3,7 @@
 from llama_index.core.node_parser import SentenceSplitter
 from llama_index.readers.file import PDFReader
 
-from ragagent.config import DEFAULT_CHUNK_OVERLAP, DEFAULT_CHUNK_SIZE
+from ..config import DEFAULT_CHUNK_OVERLAP, DEFAULT_CHUNK_SIZE
 
 
 splitter = SentenceSplitter(chunk_size=DEFAULT_CHUNK_SIZE, chunk_overlap=DEFAULT_CHUNK_OVERLAP)
