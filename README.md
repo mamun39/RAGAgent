@@ -17,11 +17,14 @@ This project was inspired by and gives credit to [ProductionGradeRAGPythonApp](h
 
 The application is split into a few simple pieces:
 
-- [main.py](/C:/Users/MRAka/PycharmProjects/RAGAgent/main.py): FastAPI app and Inngest functions.
-- [data_loader.py](/C:/Users/MRAka/PycharmProjects/RAGAgent/data_loader.py): PDF loading, chunking, and embeddings.
-- [vector_db.py](/C:/Users/MRAka/PycharmProjects/RAGAgent/vector_db.py): Qdrant wrapper for storing and searching vectors.
-- [custom_types.py](/C:/Users/MRAka/PycharmProjects/RAGAgent/custom_types.py): Pydantic models used between steps.
-- [streamlit_app.py](/C:/Users/MRAka/PycharmProjects/RAGAgent/streamlit_app.py): Simple UI for uploading PDFs and asking questions.
+- [src/ragagent/app/inngest_app.py](/C:/Users/MRAka/PycharmProjects/RAGAgent/src/ragagent/app/inngest_app.py): FastAPI app and Inngest functions.
+- [src/ragagent/app/streamlit_app.py](/C:/Users/MRAka/PycharmProjects/RAGAgent/src/ragagent/app/streamlit_app.py): UI for uploading PDFs and asking questions.
+- [src/ragagent/workflows/ingest_pdf.py](/C:/Users/MRAka/PycharmProjects/RAGAgent/src/ragagent/workflows/ingest_pdf.py): ingestion orchestration.
+- [src/ragagent/workflows/query_pdf.py](/C:/Users/MRAka/PycharmProjects/RAGAgent/src/ragagent/workflows/query_pdf.py): retrieval, prompt assembly, and answer flow.
+- [src/ragagent/ingestion/loader.py](/C:/Users/MRAka/PycharmProjects/RAGAgent/src/ragagent/ingestion/loader.py) and [src/ragagent/ingestion/embeddings.py](/C:/Users/MRAka/PycharmProjects/RAGAgent/src/ragagent/ingestion/embeddings.py): PDF loading, chunking, and embeddings.
+- [src/ragagent/storage/qdrant_store.py](/C:/Users/MRAka/PycharmProjects/RAGAgent/src/ragagent/storage/qdrant_store.py): Qdrant wrapper for storing and searching vectors.
+- [src/ragagent/security/](/C:/Users/MRAka/PycharmProjects/RAGAgent/src/ragagent/security): ingestion scanning, retrieval policy, safe context handling, output filtering, and audit logging.
+- [src/ragagent/models/](/C:/Users/MRAka/PycharmProjects/RAGAgent/src/ragagent/models): payload, policy, and result models.
 
 ## Architecture
 
@@ -47,12 +50,12 @@ This is not a full security model. The project does not implement strong identit
 ```mermaid
 flowchart LR
     U[User]
-    S[Streamlit UI<br/>streamlit_app.py]
+    S[Streamlit UI<br/>src/ragagent/app/streamlit_app.py]
     UP[(uploads/*.pdf)]
     I[Inngest Dev Server<br/>:8288]
-    A[FastAPI + Inngest Functions<br/>main.py :8000]
-    D[data_loader.py<br/>PDF load/chunk + embeddings]
-    Q[vector_db.py<br/>QdrantStorage]
+    A[FastAPI + Inngest Functions<br/>src/ragagent/app/inngest_app.py :8000]
+    D[ragagent.ingestion<br/>PDF load/chunk + embeddings]
+    Q[ragagent.storage.qdrant_store<br/>QdrantStorage]
     V[(Qdrant<br/>:6333)]
     O[(OpenAI API)]
 
@@ -83,7 +86,7 @@ sequenceDiagram
     participant S as Streamlit UI
     participant I as Inngest Dev Server
     participant A as FastAPI + Inngest Function
-    participant D as data_loader.py
+    participant D as ragagent.ingestion
     participant O as OpenAI API
     participant Q as Qdrant
 
@@ -283,6 +286,8 @@ py -m venv .venv
 pip install -e .
 ```
 
+Editable install is the expected local development setup for the `src/` layout.
+
 ## Run The Project
 
 You typically use three terminals.
@@ -294,7 +299,7 @@ Run Qdrant locally however you prefer, for example with Docker.
 ### 2. Start the FastAPI app
 
 ```powershell
-.venv\Scripts\uvicorn main:app --reload
+.venv\Scripts\uvicorn ragagent.app.inngest_app:app --reload
 ```
 
 This starts the backend server, usually at `http://127.0.0.1:8000`.
@@ -310,7 +315,21 @@ The local Inngest UI is usually available at `http://127.0.0.1:8288`.
 ### 4. Start the Streamlit UI
 
 ```powershell
-.venv\Scripts\streamlit run streamlit_app.py
+.venv\Scripts\streamlit run src/ragagent/app/streamlit_app.py
+```
+
+## Run Tests
+
+Preferred:
+
+```powershell
+.venv\Scripts\python.exe -m unittest discover -s tests -t . -p "test_*.py"
+```
+
+Compatibility entrypoint:
+
+```powershell
+.venv\Scripts\python.exe -m unittest tests.test_security_pipeline
 ```
 
 ## Using The App
