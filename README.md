@@ -6,8 +6,8 @@ It demonstrates layered app-level controls around document ingestion, retrieval,
 
 Further documentation:
 
-- [Security Architecture](/C:/Users/MRAka/PycharmProjects/RAGAgent/docs/security-architecture.md)
-- [Roadmap](/C:/Users/MRAka/PycharmProjects/RAGAgent/docs/roadmap.md)
+- [Security Architecture](docs/security-architecture.md)
+- [Roadmap](docs/roadmap.md)
 
 ## What This Demonstrates
 
@@ -80,13 +80,13 @@ Compatibility entrypoint:
 
 ## Project Structure
 
-- [src/ragagent/app/](/C:/Users/MRAka/PycharmProjects/RAGAgent/src/ragagent/app): FastAPI/Inngest and Streamlit entrypoints
-- [src/ragagent/workflows/](/C:/Users/MRAka/PycharmProjects/RAGAgent/src/ragagent/workflows): ingest and query orchestration
-- [src/ragagent/ingestion/](/C:/Users/MRAka/PycharmProjects/RAGAgent/src/ragagent/ingestion): PDF loading, chunking, and embeddings
-- [src/ragagent/security/](/C:/Users/MRAka/PycharmProjects/RAGAgent/src/ragagent/security): scanning, policy, safe context handling, output filtering, and audit logging
-- [src/ragagent/storage/](/C:/Users/MRAka/PycharmProjects/RAGAgent/src/ragagent/storage): Qdrant access
-- [src/ragagent/models/](/C:/Users/MRAka/PycharmProjects/RAGAgent/src/ragagent/models): payload, policy, and result models
-- [tests/](/C:/Users/MRAka/PycharmProjects/RAGAgent/tests): unit and integration coverage for the security-aware flow
+- [src/ragagent/app/](src/ragagent/app): FastAPI/Inngest and Streamlit entrypoints
+- [src/ragagent/workflows/](src/ragagent/workflows): ingest and query orchestration
+- [src/ragagent/ingestion/](src/ragagent/ingestion): PDF loading, chunking, and embeddings
+- [src/ragagent/security/](src/ragagent/security): scanning, policy, safe context handling, output filtering, and audit logging
+- [src/ragagent/storage/](src/ragagent/storage): Qdrant access
+- [src/ragagent/models/](src/ragagent/models): payload, policy, and result models
+- [tests/](tests): unit and integration coverage for the security-aware flow
 
 ## Security Pipeline
 
@@ -101,7 +101,7 @@ Compatibility entrypoint:
 | Output filter | Simple answer screening | Blocks obvious secret-like output and restricted-looking dumps; redacts some simple sensitive patterns | Heuristic only; not robust DLP |
 | Audit logging | Structured local logs | Logs upload, scan, quarantine, retrieval policy, retrieval summary, and output filter decisions | Local logs only; not durable or tamper-evident |
 
-For more detail on control placement and current behavior, see [Security Architecture](/C:/Users/MRAka/PycharmProjects/RAGAgent/docs/security-architecture.md).
+For more detail on control placement and current behavior, see [Security Architecture](docs/security-architecture.md).
 
 ## Known Demo Defaults
 
@@ -292,7 +292,7 @@ The current system should be treated as a security-aware demo, not a hardened se
 - improve output screening and evaluation coverage
 - move audit logs to durable storage
 
-The fuller phased plan lives in [Roadmap](/C:/Users/MRAka/PycharmProjects/RAGAgent/docs/roadmap.md).
+The fuller phased plan lives in [Roadmap](docs/roadmap.md).
 
 ## Credit
 
@@ -300,5 +300,5 @@ This project was inspired by and gives credit to [ProductionGradeRAGPythonApp](h
 
 ## Notes
 
-- `.env`, `.venv`, local caches, and `qdrant_storage/` are ignored by Git through [.gitignore](/C:/Users/MRAka/PycharmProjects/RAGAgent/.gitignore)
+- `.env`, `.venv`, local caches, and `qdrant_storage/` are ignored by Git through [.gitignore](.gitignore)
 - if a secret was committed before `.gitignore` was added, it must be removed from Git history separately
