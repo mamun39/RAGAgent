@@ -1,6 +1,6 @@
 # RAGAgent
 
-A small security-aware Retrieval-Augmented Generation (RAG) demo built with FastAPI, Inngest, Qdrant, OpenAI, and Streamlit.
+A security-aware Retrieval-Augmented Generation (RAG) built with FastAPI, Inngest, Qdrant, OpenAI, and Streamlit.
 
 It demonstrates layered app-level controls around document ingestion, retrieval, prompt context assembly, output screening, and audit logging. It is a demo of defense-in-depth patterns, not a hardened security boundary.
 
