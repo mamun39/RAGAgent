@@ -46,8 +46,12 @@ def render_ingest_panel() -> None:
         key="ingest_trust_level",
     )
     uploaded = st.file_uploader("Choose a PDF", type=["pdf"], accept_multiple_files=False, key="ingest_upload")
+    ingest_submitted = st.button("Ingest document", type="primary", use_container_width=True)
 
-    if uploaded is not None:
+    if ingest_submitted and uploaded is None:
+        st.warning("Choose a PDF before starting ingestion.")
+
+    if ingest_submitted and uploaded is not None:
         with st.spinner("Uploading and triggering ingestion..."):
             path = save_uploaded_pdf(uploaded)
             log_security_event(
@@ -66,6 +70,8 @@ def render_ingest_panel() -> None:
             }
         st.success(f"Ingestion finished for: {path.name}")
         st.caption("Latest ingestion result is shown below.")
+    elif uploaded is not None:
+        st.caption(f"Ready to ingest: {uploaded.name}")
 
     latest_ingestion = st.session_state.latest_ingestion_output
     if not latest_ingestion:
