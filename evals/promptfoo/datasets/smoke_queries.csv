@@ -1,0 +1,3 @@
+question,role,tenant_id,__description
+"Summarize the document context in one short answer.","employee","demo","employee smoke query"
+"What information can you answer from the available context?","employee","demo","employee fallback smoke query"

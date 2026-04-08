@@ -1,0 +1,58 @@
+description: SecureRAGPipeline Promptfoo smoke evals
+
+prompts:
+  - '{{question}}'
+
+providers:
+  - id: https
+    label: local-query-api
+    config:
+      url: http://127.0.0.1:8000/api/query
+      method: POST
+      headers:
+        Content-Type: application/json
+      body:
+        question: '{{question}}'
+        role: '{{role}}'
+        tenant_id: '{{tenant_id}}'
+      validateStatus: 'status >= 200 && status <= 299'
+      transformResponse: 'JSON.stringify(json)'
+
+defaultTest:
+  options:
+    transform: JSON.parse(output)
+  assert:
+    - type: is-json
+      value:
+        type: object
+        required:
+          - answer
+          - answer_decision
+          - role
+          - tenant_id
+          - retrieved_count
+          - excluded_count
+          - retrieval_trace
+          - output_filter_reasons
+        properties:
+          answer:
+            type: string
+          answer_decision:
+            type: string
+          role:
+            type: string
+          tenant_id:
+            type: string
+          retrieved_count:
+            type: integer
+          excluded_count:
+            type: integer
+          retrieval_trace:
+            type: object
+          output_filter_reasons:
+            type: array
+    - type: javascript
+      value: 'typeof output.answer === "string" && output.answer.trim().length > 0'
+
+tests:
+  - file://datasets/smoke_queries.csv
