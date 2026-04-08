@@ -26,6 +26,7 @@ Further documentation:
 - output screening for obvious secret-like or sensitive patterns
 - structured audit logging across the pipeline
 - Streamlit UI for inspecting results, traces, documents, and audit events
+- `POST /api/query` for automated querying without the Streamlit UI
 
 The primary security-control figure lives in [Security Architecture](docs/security-architecture.md).
 
@@ -100,6 +101,14 @@ Or with `uv`:
 
 ```powershell
 uv run streamlit run src/secureragpipeline/app/streamlit_app.py
+```
+
+Query the app directly:
+
+```powershell
+curl -X POST http://127.0.0.1:8000/api/query `
+  -H "Content-Type: application/json" `
+  -d "{\"question\":\"Who owns the document?\",\"role\":\"employee\",\"tenant_id\":\"demo\",\"source_id\":null}"
 ```
 
 ## Testing

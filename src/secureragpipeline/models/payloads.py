@@ -34,3 +34,12 @@ class RetrievedChunk(pydantic.BaseModel):
     trust_level: str = "user_uploaded"
     ingest_decision: str = "allow"
     ingest_scan_flags: list[str] = pydantic.Field(default_factory=list)
+
+
+class QueryAPIRequest(pydantic.BaseModel):
+    """Request body for the external query API."""
+
+    question: str | None = None
+    role: str | None = None
+    tenant_id: str | None = None
+    source_id: str | None = None

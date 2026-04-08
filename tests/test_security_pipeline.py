@@ -4,6 +4,7 @@ import unittest
 
 _SPLIT_TEST_MODULES = [
     "tests.integration.test_ingest_workflow",
+    "tests.unit.test_api_query_endpoint",
     "tests.unit.test_ingestion_scanner",
     "tests.unit.test_output_filter",
     "tests.unit.test_retrieval_policy",

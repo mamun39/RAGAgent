@@ -72,3 +72,24 @@ class RAGQueryResult(pydantic.BaseModel):
     retrieved_chunks: list[ChunkTraceEntry] = pydantic.Field(default_factory=list)
     safe_chunks: list[ChunkTraceEntry] = pydantic.Field(default_factory=list)
     excluded_chunks: list[ChunkTraceEntry] = pydantic.Field(default_factory=list)
+
+
+class QueryRetrievalTrace(pydantic.BaseModel):
+    """Structured retrieval trace returned by the external query API."""
+
+    retrieved: list[ChunkTraceEntry] = pydantic.Field(default_factory=list)
+    safe: list[ChunkTraceEntry] = pydantic.Field(default_factory=list)
+    excluded: list[ChunkTraceEntry] = pydantic.Field(default_factory=list)
+
+
+class QueryAPIResponse(pydantic.BaseModel):
+    """Stable response contract for external automated evaluation."""
+
+    answer: str
+    answer_decision: str = "allow"
+    role: str
+    tenant_id: str
+    retrieved_count: int = 0
+    excluded_count: int = 0
+    retrieval_trace: QueryRetrievalTrace
+    output_filter_reasons: list[str] = pydantic.Field(default_factory=list)

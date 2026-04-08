@@ -3,12 +3,15 @@
 import logging
 
 from dotenv import load_dotenv
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 import inngest
 import inngest.fast_api
 
+from ..config import DEFAULT_DEMO_TENANT_ID, DEFAULT_DEMO_USER_ROLE
+from ..models.payloads import QueryAPIRequest
+from ..models.results import QueryAPIResponse
 from ..workflows.ingest_pdf import run_ingest_pdf
-from ..workflows.query_pdf import run_query_pdf
+from ..workflows.query_pdf import run_api_query, run_query_pdf
 
 
 load_dotenv()
@@ -41,3 +44,26 @@ async def rag_query_pdf_ai(ctx: inngest.Context):
 
 app = FastAPI()
 inngest.fast_api.serve(app, inngest_client, [rag_inngest_pdf, rag_query_pdf_ai])
+
+
+@app.post("/api/query", response_model=QueryAPIResponse)
+async def query_api(request: QueryAPIRequest) -> QueryAPIResponse:
+    """Stable API endpoint for automated querying without the Streamlit UI."""
+    question = (request.question or "").strip()
+    if not question:
+        raise HTTPException(status_code=400, detail="question is required")
+
+    effective_role = request.role or DEFAULT_DEMO_USER_ROLE
+    effective_tenant = request.tenant_id or DEFAULT_DEMO_TENANT_ID
+
+    try:
+        return await run_api_query(
+            question=question,
+            user_role=effective_role,
+            tenant_id=effective_tenant,
+            source_id=request.source_id,
+        )
+    except HTTPException:
+        raise
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail="internal error") from exc
