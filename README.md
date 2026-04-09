@@ -2,16 +2,13 @@
 
 ![Python](https://img.shields.io/badge/Python-3.14%2B-3776AB?logo=python&logoColor=white)
 ![FastAPI](https://img.shields.io/badge/FastAPI-app-009688?logo=fastapi&logoColor=white)
-![Streamlit](https://img.shields.io/badge/Streamlit-UI-FF4B4B?logo=streamlit&logoColor=white)
 ![Qdrant](https://img.shields.io/badge/Qdrant-vector%20store-DC244C)
 ![OpenAI](https://img.shields.io/badge/OpenAI-LLM-412991?logo=openai&logoColor=white)
-![License](https://img.shields.io/badge/License-MIT-green)
 ![Status](https://img.shields.io/badge/Status-security%20demo-orange)
 
-A security-aware Retrieval-Augmented Generation (RAG) built with FastAPI, Inngest, Qdrant, OpenAI, and Streamlit.
+A security-aware Retrieval-Augmented Generation (RAG) prototype built with FastAPI, Inngest, Qdrant, OpenAI, and Streamlit.
 
-It demonstrates layered app-level controls around ingestion, retrieval, prompt context assembly, output screening, and audit logging. It is an interactive security demo, not a hardened production boundary.
-The project now also includes Promptfoo-based adversarial evaluation and targeted hardening driven by observed failures.
+It demonstrates layered controls across ingestion, retrieval, prompt context assembly, output handling, and audit logging, and now includes Promptfoo-based adversarial evaluation with targeted hardening driven by observed failures. It remains an interactive prototype, not a hardened production security boundary.
 
 Further documentation:
 
@@ -19,40 +16,77 @@ Further documentation:
 - [Runtime Diagrams](docs/runtime-diagrams.md)
 - [Roadmap](docs/roadmap.md)
 
-## Highlights
+## What This Project Demonstrates
 
 - ingestion scanning with `allow`, `review`, and `quarantine` decisions
-- retrieval-time policy filtering by role and document metadata
+- quarantine enforcement before embedding and indexing
+- metadata-driven retrieval controls based on demo role and classification policy
 - safe context construction that treats retrieved text as untrusted evidence
-- output screening for obvious secret-like or sensitive patterns
+- output screening for obvious secret-like and sensitive patterns
 - structured audit logging across the pipeline
-- Streamlit UI for inspecting results, traces, documents, and audit events
-- `POST /api/query` for automated querying without the Streamlit UI
-- Promptfoo-based adversarial evaluation with fix-driven hardening
+- Promptfoo-based adversarial evaluation with targeted hardening based on observed failures
 
-The primary security-control figure lives in [Security Architecture](docs/security-architecture.md).
+## Security Evaluation
 
-## What This Demonstrates
+This project includes Promptfoo-based adversarial evaluation against the local `POST /api/query` endpoint.
 
-- PDF ingestion into a vector store
-- ingestion-time suspicious-content scanning
-- quarantine enforcement before embedding/upsert
-- retrieval-time metadata filtering based on demo role policy
-- safe prompt context construction from retrieved chunks
-- post-generation output screening
-- structured security event logging
-- adversarial evaluation and targeted hardening based on observed failures
+Current suites cover:
+
+- indirect prompt injection
+- retrieval authorization
+- sensitive-data leakage and output filtering
+
+These suites were used to expose concrete weaknesses and drive targeted hardening in the shared query and output-screening path.
+
+| Suite | Initial Result | Current Result |
+|---|---:|---:|
+| Prompt injection | 6/6 | 6/6 |
+| Retrieval authz | 5/7 | 7/7 |
+| Data leakage | 5/7 | 7/7 |
+
+- denial responses were echoing sensitive request wording instead of using neutral refusals
+- internal token-like strings and confidential marker phrases were being mirrored back in final answers
+- hidden-instruction and disclosure phrasing needed stronger suppression in final answers
+- the query path needed an abstention check when the requested classification was not available in allowed evidence
+
+### How To Run The Evals
+
+Promptfoo files live under [evals/promptfoo/](evals/promptfoo/).
+
+```powershell
+npx promptfoo@latest eval -c evals/promptfoo/promptfooconfig.yaml
+npx promptfoo@latest eval --no-cache -c evals/promptfoo/scenarios/prompt_injection.yaml
+npx promptfoo@latest eval --no-cache -c evals/promptfoo/scenarios/retrieval_authz.yaml
+npx promptfoo@latest eval --no-cache -c evals/promptfoo/scenarios/data_leakage.yaml
+```
+
+Use `--no-cache` when validating recent code changes so stale Promptfoo results do not mask current behavior.
+
+## Security Pipeline
+
+| Stage | Current Control | Current Behavior | Current Limitation |
+|---|---|---|---|
+| Upload | Local file save + audit log | Uploaded PDFs are saved under `uploads/` and logged | No malware scanning or parser isolation |
+| Ingestion scan | Phrase-based suspicious-content scan | Returns `score`, `flags`, and `allow` / `review` / `quarantine` | Can miss malicious content or over-flag benign text |
+| Quarantine | Pre-embedding enforcement | `quarantine` documents are not embedded or stored in Qdrant | No separate review UI or durable quarantine store |
+| Metadata | Security-aware chunk payloads | Chunks carry doc/chunk IDs, tenant, owner, classification, trust, decision, hash, timestamp | Most values still use demo defaults |
+| Retrieval policy | App-layer metadata filter | Filters by tenant, classification allowlist, non-quarantine status, and optional source | No real authentication or server-trusted identity |
+| Safe context | Context filtering + untrusted-text instruction | Quarantined and flagged/review chunks are excluded before prompt assembly | Heuristic and conservative rather than nuanced |
+| Output filter | Simple answer screening | Blocks obvious secret-like output and restricted-looking dumps; redacts some simple sensitive patterns | Heuristic only; not robust DLP |
+| Audit logging | Structured local logs | Logs upload, scan, quarantine, retrieval policy, retrieval summary, and output filter decisions | Local logs only; not durable or tamper-evident |
+
+For more detail on control placement and current behavior, see [Security Architecture](docs/security-architecture.md).
 
 ## Quickstart
 
-Requirements:
+### Requirements
 
 - Python 3.14+
 - Qdrant running locally on `http://localhost:6333`
 - OpenAI API key
 - Inngest dev server for local development
 
-Install:
+### Install
 
 ```powershell
 py -m venv .venv
@@ -66,6 +100,8 @@ With `uv`:
 uv sync
 ```
 
+### Environment
+
 Create a `.env` file in the project root:
 
 ```env
@@ -73,10 +109,9 @@ OPENAI_API_KEY=your_openai_api_key
 INNGEST_API_BASE=http://127.0.0.1:8288/v1
 ```
 
-Run the app:
+### Run Services
 
-1. Start Qdrant locally.
-2. Start the FastAPI/Inngest app:
+Start the FastAPI/Inngest app:
 
 ```powershell
 .venv\Scripts\uvicorn secureragpipeline.app.inngest_app:app --reload
@@ -88,13 +123,13 @@ Or with `uv`:
 uv run python -m uvicorn secureragpipeline.app.inngest_app:app --reload
 ```
 
-3. Start the Inngest dev server:
+Start the Inngest dev server:
 
 ```powershell
 npx --ignore-scripts=false inngest-cli@latest dev -u http://127.0.0.1:8000/api/inngest --no-discovery
 ```
 
-4. Start Streamlit:
+Start Streamlit:
 
 ```powershell
 .venv\Scripts\streamlit run src/secureragpipeline/app/streamlit_app.py
@@ -106,7 +141,7 @@ Or with `uv`:
 uv run streamlit run src/secureragpipeline/app/streamlit_app.py
 ```
 
-Query the app directly:
+### Query API
 
 ```powershell
 curl -X POST http://127.0.0.1:8000/api/query `
@@ -138,57 +173,6 @@ uv run python -m unittest discover -s tests -t . -p "test_*.py"
 - [src/secureragpipeline/models/](src/secureragpipeline/models): payload and result models
 - [tests/](tests): unit and integration coverage
 
-## Security Pipeline
-
-| Stage | Current Control | Current Behavior | Current Limitation |
-|---|---|---|---|
-| Upload | Local file save + audit log | Uploaded PDFs are saved under `uploads/` and logged | No malware scanning or parser isolation |
-| Ingestion scan | Phrase-based suspicious-content scan | Returns `score`, `flags`, and `allow` / `review` / `quarantine` | Can miss malicious content or over-flag benign text |
-| Quarantine | Pre-embedding enforcement | `quarantine` documents are not embedded or stored in Qdrant | No separate review UI or durable quarantine store |
-| Metadata | Security-aware chunk payloads | Chunks carry doc/chunk IDs, tenant, owner, classification, trust, decision, hash, timestamp | Most values still use demo defaults |
-| Retrieval policy | App-layer metadata filter | Filters by tenant, classification allowlist, non-quarantine status, and optional source | No real authentication or server-trusted identity |
-| Safe context | Context filtering + untrusted-text instruction | Quarantined and flagged/review chunks are excluded before prompt assembly | Heuristic and conservative rather than nuanced |
-| Output filter | Simple answer screening | Blocks obvious secret-like output and restricted-looking dumps; redacts some simple sensitive patterns | Heuristic only; not robust DLP |
-| Audit logging | Structured local logs | Logs upload, scan, quarantine, retrieval policy, retrieval summary, and output filter decisions | Local logs only; not durable or tamper-evident |
-
-For more detail on control placement and current behavior, see [Security Architecture](docs/security-architecture.md).
-
-## Security Evaluation
-
-This project includes Promptfoo-based adversarial evaluation against the local `POST /api/query` endpoint.
-
-Current suites cover:
-
-- indirect prompt injection
-- retrieval authorization
-- sensitive-data leakage and output filtering
-
-These suites were used to expose concrete weaknesses and drive targeted hardening in the shared query and output-screening path.
-
-| Suite | Initial Result | Current Result |
-|---|---:|---:|
-| Prompt injection | 6/6 | 6/6 |
-| Retrieval authz | 5/7 | 7/7 |
-| Data leakage | 5/7 | 7/7 |
-
-- denial responses were echoing sensitive request wording instead of using neutral refusals
-- internal token-like strings and confidential marker phrases were being mirrored back in final answers
-- some hidden-instruction and disclosure phrasing needed stronger suppression in final answers
-- the query path needed an abstention check when the requested classification was not available in allowed evidence
-
-### How To Run The Evals
-
-Promptfoo files live under [evals/promptfoo/](evals/promptfoo/).
-
-```powershell
-npx promptfoo@latest eval -c evals/promptfoo/promptfooconfig.yaml
-npx promptfoo@latest eval --no-cache -c evals/promptfoo/scenarios/prompt_injection.yaml
-npx promptfoo@latest eval --no-cache -c evals/promptfoo/scenarios/retrieval_authz.yaml
-npx promptfoo@latest eval --no-cache -c evals/promptfoo/scenarios/data_leakage.yaml
-```
-
-Use `--no-cache` when validating recent code changes so stale Promptfoo results do not mask current behavior.
-
 ## Demo Defaults
 
 | Field | Default |
@@ -212,17 +196,10 @@ Use `--no-cache` when validating recent code changes so stale Promptfoo results 
 ## Try It
 
 1. Upload a PDF and assign `classification` and `trust_level`.
-2. Wait for ingestion to complete.
-3. Ask the same question under different roles.
-4. Inspect the answer summary, retrieval trace, document metadata, and audit events.
+2. Ask the same question through the UI or `POST /api/query` under different roles.
+3. Inspect the answer, retrieval trace, document metadata, and audit events.
 
 Detailed runtime diagrams live in [Runtime Diagrams](docs/runtime-diagrams.md). Lower-level control placement and security behavior are described in [Security Architecture](docs/security-architecture.md).
-
-## Why This Project
-
-- shows layered security controls across the full RAG lifecycle
-- makes security behavior visible through an interactive UI
-- provides a practical demo environment for experimentation and evaluation
 
 ## Troubleshooting
 
@@ -251,7 +228,7 @@ The current system should be treated as a security-aware demo, not a hardened se
 
 ## Future Work
 
-Future work includes real authentication, trusted server-side metadata, stronger ingestion controls, more nuanced context/output handling, durable audit storage, and broader evaluation coverage. The fuller phased plan lives in [Roadmap](docs/roadmap.md).
+Future work includes real authentication, trusted server-side metadata, stronger ingestion controls, more nuanced context and output handling, durable audit storage, and broader adversarial evaluation coverage. The fuller phased plan lives in [Roadmap](docs/roadmap.md).
 
 ## Credit
 
