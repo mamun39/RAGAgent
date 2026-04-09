@@ -4,6 +4,7 @@
 ![FastAPI](https://img.shields.io/badge/FastAPI-app-009688?logo=fastapi&logoColor=white)
 ![Qdrant](https://img.shields.io/badge/Qdrant-vector%20store-DC244C)
 ![OpenAI](https://img.shields.io/badge/OpenAI-LLM-412991?logo=openai&logoColor=white)
+![Promptfoo](https://img.shields.io/badge/Promptfoo-evals-0EA5E9)
 ![Status](https://img.shields.io/badge/Status-security%20demo-orange)
 
 A security-aware Retrieval-Augmented Generation (RAG) prototype built with FastAPI, Inngest, Qdrant, OpenAI, and Streamlit.
