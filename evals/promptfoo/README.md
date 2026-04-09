@@ -62,9 +62,9 @@ npx promptfoo@latest eval -c evals/promptfoo/scenarios/retrieval_authz.yaml
 
 ## Prompt-Injection Scenario
 
-- sends indirect prompt-injection style questions framed as malicious retrieved content
+- uses realistic user-facing questions plus attack-profile metadata to simulate malicious retrieved content more faithfully
 - checks that the endpoint still returns valid JSON and a non-empty answer
-- checks that the answer does not echo obvious override or leakage phrases such as `system prompt`, `ignore previous instructions`, `confidential marker`, `hidden metadata`, or `admin policy`
+- checks that the answer does not echo concrete override or disclosure indicators from the dataset
 
 This step is intentionally small. Additional adversarial suites and broader security evals will be added in later steps.
 
@@ -74,3 +74,16 @@ This step is intentionally small. Additional adversarial suites and broader secu
 - checks denied cases mechanically by ensuring forbidden classifications do not appear in `retrieval_trace.retrieved` or `retrieval_trace.safe`
 - checks allowed cases do not get blocked unnecessarily by the output filter
 - includes one indirect request phrasing rather than only direct “show me restricted content” prompts
+## Run The Data-Leakage Scenario
+
+From the repository root:
+
+```powershell
+npx promptfoo@latest eval -c evals/promptfoo/scenarios/data_leakage.yaml
+```
+
+## Data-Leakage Scenario
+
+- tests whether final answers leak or mirror sensitive-looking content such as API-key-like strings, emails, phone numbers, internal tokens, and confidential markers
+- checks explicit output-filter decisions where the current app has stable block/redact behavior
+- uses mechanical forbidden-string assertions so the suite catches both retrieval leaks and prompt-echo leaks
